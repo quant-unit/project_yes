@@ -34,10 +34,13 @@ def simulate_entry_to_exit(df):
     del df['WILL5000INDFC']
     return df
 
+def make_some_investments(n=10):
+    df_stock_index = load_stock_data()
+    sim_list = [simulate_entry_to_exit(df_stock_index) for x in range(0,n)]
+    df = pd.concat(sim_list).reset_index(drop=True)
+    return df
 
 if __name__ == "__main__":
-    df_stock_index = load_stock_data()
-    sim_list = [simulate_entry_to_exit(df_stock_index) for x in range(0,100)]
-    df = pd.concat(sim_list).reset_index(drop=True)
+    df = make_some_investments(100)
     multiple = df.cash_flow[df.cash_flow > 0].sum() / - df.cash_flow[df.cash_flow < 0].sum()
     print(r'Our sophisticated AI/ML strategy made a multiple of {}.'.format(round(multiple, 2)))
