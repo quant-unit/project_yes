@@ -2,6 +2,8 @@
 import pandas as pd
 import numpy as np
 
+np.random.seed(123)
+
 def load_stock_data():
     # https://fred.stlouisfed.org/series/WILL5000INDFC
     path = 'data/WILL5000INDFC.csv'
@@ -38,9 +40,14 @@ def make_some_investments(n=10):
     df_stock_index = load_stock_data()
     sim_list = [simulate_entry_to_exit(df_stock_index) for x in range(0,n)]
     df = pd.concat(sim_list).reset_index(drop=True)
+    df.sort_values('DATE', inplace=True)
+
+    df.to_csv('data/cash_flows_to_evaluate.csv')
+
     return df
 
 if __name__ == "__main__":
     df = make_some_investments(100)
     multiple = df.cash_flow[df.cash_flow > 0].sum() / - df.cash_flow[df.cash_flow < 0].sum()
+    assert round(multiple, 2) == 2.33, 'np.random.seed() does not work'
     print(r'Our sophisticated AI/ML strategy made a multiple of {}.'.format(round(multiple, 2)))

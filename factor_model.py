@@ -16,6 +16,9 @@ def get_factor_model(exp_affine=True, weighting="VW"):
     url = 'https://raw.githubusercontent.com/quant-unit/sdf_private_equity/master/resi/df_resi_{}_{}.csv'.format(return_type, weighting)
     df_model = pd.read_csv(url)
 
+    df_model = df_model[df_model.Horizon >= 120]
+    df_model = df_model[df_model.Horizon <= 180]
+
     df_model.set_index(['Horizon', 'Fund.Type', 'Max.Vin','Model'], inplace=True)
     df_model = df_model[['One', 'Mkt.RF', 'HML', 'SMB', 'RMW', 'CMA']]
     df_model['RF'] = 1
@@ -24,13 +27,20 @@ def get_factor_model(exp_affine=True, weighting="VW"):
 
 
 def get_fama_french():
+    '''
+    factor_model intercept is estimated for monthly returns
+    assert fama_french data is on a monthly interval
+    '''
     ds = web.DataReader('F-F_Research_Data_5_Factors_2x3', 'famafrench', '1960-01-31')
     df_ff = ds[0]
     df_ff.index = df_ff.index.to_timestamp() + MonthEnd(0)
+    df_ff = round(df_ff / 100.0, 4) # convert percentage returns
     df_ff['One'] = 1
     df_ff.rename(columns={'Mkt-RF': 'Mkt.RF'}, inplace=True)
 
-    return df_ff / 100.0
+    df_ff.to_csv('data/ff_returns.csv')
+
+    return df_ff
 
 
 def total_return_index(df_model, df_ff, exp_affine=True):
