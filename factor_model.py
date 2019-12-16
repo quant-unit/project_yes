@@ -3,6 +3,8 @@ import pandas as pd
 from pandas_datareader.famafrench import get_available_datasets
 import pandas_datareader.data as web
 from pandas.tseries.offsets import MonthEnd
+import numpy as np
+
 
 def get_factor_model(exp_affine=True, weighting="VW"):
     if exp_affine:
@@ -18,9 +20,6 @@ def get_factor_model(exp_affine=True, weighting="VW"):
     df_model = df_model[['One', 'Mkt.RF', 'HML', 'SMB', 'RMW', 'CMA']]
     df_model['RF'] = 1
 
-    print(df_model.columns)
-    print(df_model.index)
-
     return df_model
 
 
@@ -29,10 +28,22 @@ def get_fama_french():
     df_ff = ds[0]
     df_ff.index = df_ff.index.to_timestamp() + MonthEnd(0)
     df_ff['One'] = 1
-    df_ff.rename(columns={'Mkt-RF': 'Mkt.RF'})
-    print(df_ff.columns)
-    print(df_ff.index)
-    return df_ff
+    df_ff.rename(columns={'Mkt-RF': 'Mkt.RF'}, inplace=True)
+
+    return df_ff / 100.0
+
+
+def total_return_index(df_model, df_ff, exp_affine=True):
+    df_ff = df_ff[df_model.columns]
+
+    df = np.dot(df_ff, df_model.transpose())
+    df = pd.DataFrame(df, index=df_ff.index, columns=df_model.index)
+
+    if not exp_affine: # simple linear model
+        df = np.log(1 + df)
+    df = df.cumsum(axis=0)
+    df = np.exp(df)
+    return df
 
 
 if __name__ == "__main__":
@@ -40,4 +51,8 @@ if __name__ == "__main__":
 
     df_model = get_factor_model()
     df_ff = get_fama_french()
+
+    df = total_return_index(df_model, df_ff)
+    print(df.shape)
+    print(df)
 
