@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 pandas = "*"
 numpy = "*"
+pandas_datareader = "*"
 
 [requires]
 python_version = "3.7"
