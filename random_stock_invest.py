@@ -35,8 +35,7 @@ def simulate_entry_to_exit(df):
     del df['WILL5000INDFC']
     return df
 
-def make_some_investments(n=10):
-    df_stock_index = load_stock_data()
+def make_some_investments(df_stock_index, n=10):
     sim_list = [simulate_entry_to_exit(df_stock_index) for x in range(0,n)]
     df = pd.concat(sim_list).reset_index(drop=True)
     df.sort_values('DATE', inplace=True)
@@ -45,12 +44,21 @@ def make_some_investments(n=10):
 
     return df
 
-def test_random_stock_invest():
-    np.random.seed(123)
-    df = make_some_investments(100)
-    multiple = df.cash_flow[df.cash_flow > 0].sum() / - df.cash_flow[df.cash_flow < 0].sum()
-    assert round(multiple, 2) == 2.33, 'np.random.seed() does not work'
-    #print(r'Our sophisticated AI/ML strategy made a multiple of {}.'.format(round(multiple, 2)))
+class TestClass():
+    def test_load_stock_data(self):
+        df = load_stock_data()
+        assert isinstance(df, pd.DataFrame)
+        for col in ['WILL5000INDFC', 'DATE']:
+            assert col in df.columns, col
+
+    def test_make_some_investments(self):
+        np.random.seed(123)
+        df = make_some_investments(load_stock_data(), 100)
+        multiple = df.cash_flow[df.cash_flow > 0].sum() / - df.cash_flow[df.cash_flow < 0].sum()
+        assert round(multiple, 2) == 2.33, 'np.random.seed() does not work'
+        #print(r'Our sophisticated AI/ML strategy made a multiple of {}.'.format(round(multiple, 2)))
 
 if __name__ == "__main__":
-    test_random_stock_invest()
+    tc = TestClass()
+    tc.test_load_stock_data()
+    tc.test_make_some_investments()

@@ -37,12 +37,12 @@ def test_get_factor_model():
     df = get_factor_model()
     inner_assert(df)
 
-def get_fama_french():
+def get_fama_french(data_set = 'F-F_Research_Data_5_Factors_2x3'):
     '''
     factor_model intercept is estimated for monthly returns
     assert fama_french data is on a monthly interval
     '''
-    ds = web.DataReader('F-F_Research_Data_5_Factors_2x3', 'famafrench', '1960-01-31')
+    ds = web.DataReader(data_set, 'famafrench', '1960-01-31')
     df_ff = ds[0]
     df_ff.index = df_ff.index.to_timestamp() + MonthEnd(0)
     df_ff = round(df_ff / 100.0, 4) # convert percentage returns
@@ -54,12 +54,13 @@ def get_fama_french():
     return df_ff
 
 def test_get_fama_french():
-    df = get_fama_french()
-    inner_assert(df)
-
+    data_set = 'F-F_Research_Data_5_Factors_2x3'
     from pandas_datareader.famafrench import get_available_datasets
     data_sets = get_available_datasets()
-    assert 'F-F_Research_Data_5_Factors_2x3' in data_sets
+    assert data_set in data_sets
+
+    df = get_fama_french(data_set)
+    inner_assert(df)
 
 def total_return_index(df_model, df_ff, exp_affine=True):
     df_ff = df_ff[df_model.columns]
