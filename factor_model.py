@@ -1,6 +1,5 @@
 
 import pandas as pd
-from pandas_datareader.famafrench import get_available_datasets
 import pandas_datareader.data as web
 from pandas.tseries.offsets import MonthEnd
 import numpy as np
@@ -25,6 +24,18 @@ def get_factor_model(exp_affine=True, weighting="VW"):
 
     return df_model
 
+def inner_assert(df):
+    shape = df.shape
+    assert shape[1] == 7
+
+    existing_cols = df.columns
+    expected_cols = ['One', 'Mkt.RF', 'HML', 'SMB', 'RMW', 'CMA', 'RF']
+    for col in expected_cols:
+        assert col in existing_cols, col
+
+def test_get_factor_model():
+    df = get_factor_model()
+    inner_assert(df)
 
 def get_fama_french():
     '''
@@ -42,6 +53,13 @@ def get_fama_french():
 
     return df_ff
 
+def test_get_fama_french():
+    df = get_fama_french()
+    inner_assert(df)
+
+    from pandas_datareader.famafrench import get_available_datasets
+    data_sets = get_available_datasets()
+    assert 'F-F_Research_Data_5_Factors_2x3' in data_sets
 
 def total_return_index(df_model, df_ff, exp_affine=True):
     df_ff = df_ff[df_model.columns]
@@ -55,14 +73,16 @@ def total_return_index(df_model, df_ff, exp_affine=True):
     df = np.exp(df)
     return df
 
+def test_total_return_index():
+    df_model = get_factor_model()
+    df_ff = get_fama_french()
+    df = total_return_index(df_model, df_ff)
+    assert df_ff.shape[0] == df.shape[0]
 
 if __name__ == "__main__":
     #print(get_available_datasets())
 
     df_model = get_factor_model()
     df_ff = get_fama_french()
-
     df = total_return_index(df_model, df_ff)
-    print(df.shape)
-    print(df)
 
