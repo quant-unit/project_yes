@@ -45,7 +45,7 @@ def get_fama_french(data_set = 'F-F_Research_Data_5_Factors_2x3'):
     return df_ff
 
 
-def total_return_index(df_model, df_ff, exp_affine=True):
+def sdf(df_model, df_ff, exp_affine=True):
     df_ff = df_ff[df_model.columns]
 
     df = np.dot(df_ff, df_model.transpose())
@@ -55,6 +55,7 @@ def total_return_index(df_model, df_ff, exp_affine=True):
         df = np.log(1 + df)
     df = df.cumsum(axis=0)
     df = np.exp(df)
+    df = 1.0 / df # convert stochastic compound factor to SDF
 
     df.index = pd.to_datetime(df.index)
 
@@ -64,5 +65,5 @@ def total_return_index(df_model, df_ff, exp_affine=True):
 if __name__ == "__main__":
     df_model = get_factor_model()
     df_ff = get_fama_french()
-    df = total_return_index(df_model, df_ff)
+    df = sdf(df_model, df_ff)
     print(df)

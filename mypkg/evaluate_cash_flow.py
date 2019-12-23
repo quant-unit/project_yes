@@ -13,9 +13,8 @@ def simulate_cash_flow(no_investments = 5):
 def select_sdf(fund_type = 'VC'):
     df_model = factor_model.get_factor_model()
     df_ff = factor_model.get_fama_french()
-    df_sdf = factor_model.total_return_index(df_model, df_ff)
+    df_sdf = factor_model.sdf(df_model, df_ff)
     df_sdf = df_sdf.iloc[:, df_sdf.columns.get_level_values('Fund.Type') == fund_type]
-    df_sdf = 1.0 / df_sdf # make total_return_index to SDF
     return df_sdf
 
 # calc and analyze NPV

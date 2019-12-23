@@ -23,13 +23,13 @@ def test_get_fama_french():
     df = factor_model.get_fama_french(data_set)
     inner_assert(df)
 
-def test_total_return_index():
+def test_sdf():
     df_model = factor_model.get_factor_model()
     df_ff = factor_model.get_fama_french()
-    df = factor_model.total_return_index(df_model, df_ff)
+    df = factor_model.sdf(df_model, df_ff)
     assert df_ff.shape[0] == df.shape[0]
 
 if __name__ == "__main__":
     test_get_factor_model()
     test_get_fama_french()
-    test_total_return_index()
+    test_sdf()
