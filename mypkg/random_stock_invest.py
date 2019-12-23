@@ -1,16 +1,20 @@
 
 import pandas as pd
 import numpy as np
+import pandas_datareader.data as web
+from pandas.tseries.offsets import MonthEnd
 
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def load_stock_data():
-    # https://fred.stlouisfed.org/series/WILL5000INDFC
-    path = os.path.join(dir_path, 'data', 'WILL5000INDFC.csv')
-    df = pd.read_csv(path, na_values='.')
+def load_stock_data(data_set = 'WILL5000INDFC', start_date = '1960-01-31'):
+    '''
+    Download Wilshire 5000 Total Market Full Cap Index (Full US Stock Market Proxy)
+    https://fred.stlouisfed.org/series/WILL5000INDFC
+    '''
+    df = web.DataReader(data_set, 'fred', start_date)
     df.WILL5000INDFC.fillna(method='ffill', inplace=True)
-    df.DATE = pd.to_datetime(df.DATE)
+    df['DATE'] = pd.to_datetime(df.index)
     return df
 
 def simulate_entry_to_exit(df):
@@ -40,6 +44,8 @@ def simulate_entry_to_exit(df):
 def make_some_investments(df_stock_index, n=10):
     sim_list = [simulate_entry_to_exit(df_stock_index) for x in range(0,n)]
     df = pd.concat(sim_list).reset_index(drop=True)
+    df.DATE = df.DATE + MonthEnd(0)
+    df = df.groupby('DATE').sum()
     df.sort_values('DATE', inplace=True)
 
     path = os.path.join(dir_path, 'data', 'cash_flows_to_evaluate.csv')
@@ -47,7 +53,12 @@ def make_some_investments(df_stock_index, n=10):
 
     return df
 
+def calc_multiple(df):
+    multiple = df.cash_flow[df.cash_flow > 0].sum() / - df.cash_flow[df.cash_flow < 0].sum()
+    return round(multiple, 2)
+
 if __name__ == "__main__":
     df = load_stock_data()
     simulate_entry_to_exit(df)
     df = make_some_investments(df)
+    print(df)

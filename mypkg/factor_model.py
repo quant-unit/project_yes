@@ -55,13 +55,14 @@ def total_return_index(df_model, df_ff, exp_affine=True):
         df = np.log(1 + df)
     df = df.cumsum(axis=0)
     df = np.exp(df)
+
+    df.index = pd.to_datetime(df.index)
+
     return df
 
 
 if __name__ == "__main__":
-    #print(get_available_datasets())
-
     df_model = get_factor_model()
     df_ff = get_fama_french()
     df = total_return_index(df_model, df_ff)
-
+    print(df)
