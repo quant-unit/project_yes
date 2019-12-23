@@ -8,6 +8,11 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def get_factor_model(exp_affine=True, weighting="VW"):
+    '''
+    Download factor model parameters from:
+    https://github.com/quant-unit/sdf_private_equity
+    Do some additional filtering and formatting
+    '''
     if exp_affine:
         return_type = 'exp'
     else:
@@ -29,6 +34,7 @@ def get_factor_model(exp_affine=True, weighting="VW"):
 
 def get_fama_french(data_set = 'F-F_Research_Data_5_Factors_2x3'):
     '''
+    Download Fama-French stock market factor data
     factor_model intercept is estimated for monthly returns
     assert fama_french data is on a monthly interval
     '''
@@ -46,6 +52,11 @@ def get_fama_french(data_set = 'F-F_Research_Data_5_Factors_2x3'):
 
 
 def sdf(df_model, df_ff, exp_affine=True):
+    '''
+    Calc realized SDF returns by combining
+    factor_model parameters with
+    fama_french factors
+    '''
     df_ff = df_ff[df_model.columns]
 
     df = np.dot(df_ff, df_model.transpose())

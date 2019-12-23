@@ -18,6 +18,10 @@ def load_stock_data(data_set = 'WILL5000INDFC', start_date = '1960-01-31'):
     return df
 
 def simulate_entry_to_exit(df):
+    '''
+    Make one randomly timed investment in the US stock market
+    And generate several (one-many) associated divestment cash flows
+    '''
     use_first_dates = 0.5
     invest_period = np.rint(len(df) * use_first_dates).astype(int)
     investment_date = np.random.choice(df.DATE.iloc[:invest_period])
@@ -42,6 +46,11 @@ def simulate_entry_to_exit(df):
     return df
 
 def make_some_investments(df_stock_index, n=10):
+    '''
+    Wrapper to n-times iterate simulate_entry_to_exit() function
+    Concat and format output
+    Save output as .csv file
+    '''
     sim_list = [simulate_entry_to_exit(df_stock_index) for x in range(0,n)]
     df = pd.concat(sim_list).reset_index(drop=True)
     df.DATE = df.DATE + MonthEnd(0)
@@ -54,6 +63,9 @@ def make_some_investments(df_stock_index, n=10):
     return df
 
 def calc_multiple(df):
+    '''
+    Calc cumulative divestment to investment multiple
+    '''
     multiple = df.cash_flow[df.cash_flow > 0].sum() / - df.cash_flow[df.cash_flow < 0].sum()
     return round(multiple, 2)
 

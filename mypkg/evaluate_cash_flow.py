@@ -5,12 +5,18 @@ import numpy as np
 
 # simulate cash_flow
 def simulate_cash_flow(no_investments = 5):
+    '''
+    Simulate random cash flow
+    '''
     df_stock_data = random_stock_invest.load_stock_data()
     df_cash_flow = random_stock_invest.make_some_investments(df_stock_data, no_investments)
     return df_cash_flow
 
 # select SDF models
 def select_sdf(fund_type = 'VC'):
+    '''
+    Select SDF model for fund_type
+    '''
     df_model = factor_model.get_factor_model()
     df_ff = factor_model.get_fama_french()
     df_sdf = factor_model.sdf(df_model, df_ff)
@@ -19,6 +25,10 @@ def select_sdf(fund_type = 'VC'):
 
 # calc and analyze NPV
 def analyze_npv(df_sdf, df_cash_flow):
+    '''
+    Calc summary statistics for NPVs
+    NPV = Discounted Cash Flow by SDF
+    '''
     df_sdf = df_sdf.loc[df_cash_flow.index]
     assert len(df_sdf) == len(df_cash_flow)
     npv = np.dot(df_sdf.transpose(), df_cash_flow)
