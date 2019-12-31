@@ -1,8 +1,6 @@
 from mypkg import factor_model, random_stock_invest
 import numpy as np
 
-#np.random.seed(126)
-
 # simulate cash_flow
 def simulate_cash_flow(no_investments = 5):
     '''
@@ -48,6 +46,8 @@ def analyze_npv(df_sdf, df_cash_flow):
     return dict_summary
 
 if __name__ == "__main__":
+    # np.random.seed(126)
+
     n = 10
     df_cash_flow = simulate_cash_flow(n)
     multiple = random_stock_invest.calc_multiple(df_cash_flow)
